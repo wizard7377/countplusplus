@@ -6,8 +6,26 @@
 
 using namespace dpp;
 
+
+
 namespace utl {
 
+class cGuild {
+	public:
+		cGuild(snowflake gId,cluster * botPar);
+		long double currentValue = 1;
+		long double highValue = 1;
+		long double curStep = 1;
+		long double curStart = 1;
+		int curLives = 1;
+		snowflake curUser;
+		void onMsg(message inMsg);
+	private:
+		cluster * bot;
+		bool isCorrect(std::string inStr);
+
+
+};
 
 class point {
 	public:

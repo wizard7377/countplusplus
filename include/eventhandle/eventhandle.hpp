@@ -6,6 +6,7 @@
 #include <functional>
 #include <string>
 #include "databaselogic.hpp"
+//#include "utl.hpp"
 
 using namespace dpp;
 
@@ -18,11 +19,13 @@ namespace evt {
 			bool addSlashCmd(std::string compid,std::function<void(const slashcommand_t&)> newCmd);
 			bool addFormCmd(std::string compid,std::function<void(const form_submit_t&)> newCmd);
 			bool addButtonCmd(std::string compid,std::function<void(const button_click_t&)> newCmd);
+			bool addMessageCmd(std::string compid,std::function<void(const message_create_t&)> newCmd);
 			
 			bool deleteSelectCmd(std::string compid);
 			bool deleteSlashCmd(std::string compid);
 			bool deleteFormCmd(std::string compid);
 			bool deleteButtonCmd(std::string compid);
+			bool deleteMessageCmd(std::string compid);
 		
 
 			mData::dataHandle * testCon;
@@ -32,6 +35,7 @@ namespace evt {
 			std::unordered_map<std::string,std::function<void(const button_click_t&)>> buttonCmds;
 			std::unordered_map<std::string,std::function<void(const slashcommand_t&)>> slashCmds;
 			std::unordered_map<std::string,std::function<void(const form_submit_t&)>> formCmds;
+			std::unordered_map<std::string,std::function<void(const message_create_t&)>> messageCmds;
 			
 	};
 }

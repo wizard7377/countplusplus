@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
 	std::ifstream jFile(getFullPath("secrets/config.json"));
 	json gameconfig = json::parse(jFile)["DISCORD"];
 
-	cluster bot(gameconfig["BOT_TOKEN"]);
+	cluster bot((gameconfig["BOT_TOKEN"]),dpp::i_default_intents | dpp::i_message_content);
 	
 
 

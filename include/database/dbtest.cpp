@@ -30,7 +30,7 @@ dataHandle::dataHandle() {
  
 }
 
-
+/*
 reSet dataHandle::getUser(uint64_t userId, uint64_t guildId) {
 	std::string curQ = "";
 	reSet retAc;
@@ -221,4 +221,6 @@ bool dataHandle::editSetting (string setName, string val, int gameId, uint64_t u
 
 
 }
+*/
 }
+
