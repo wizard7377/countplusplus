@@ -12,11 +12,12 @@
 #include <chrono>  
 #include <filesystem>
 #include <nlohmann/json.hpp>
+#include "commandHandle.hpp"
 
 
 using namespace dpp;
 using json = nlohmann::json;
-
+namespace fs = std::filesystem;
 
 
 /*
@@ -27,7 +28,16 @@ evt::eventhandle * handler;
 
 
 
-
+std::string getFullPath(std::string filePath) {
+	return (fs::current_path() /= filePath);
+}
+std::string getFullPath(std::vector<std::string> filePath) {
+	fs::path retPath = fs::current_path();
+	for (auto sub: filePath) {
+		retPath /= sub;
+	}
+	return retPath.string();
+}
 
 
 
@@ -50,7 +60,7 @@ int main(int argc, char *argv[]) {
 		exit(0);
 	}
 
-	createCommandHandle();
+	//createCommandHandle();
 	
 	
 	bot.on_log(utility::cout_logger());
