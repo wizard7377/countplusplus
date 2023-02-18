@@ -13,7 +13,7 @@ secrets/**
 libs/**
 _deps
 **.sql
-duelBot
+countBot
 include/**/*.json
 resources/**
 output/**
