@@ -1,5 +1,6 @@
 #include "databaselogic.hpp"
 #include <iostream>
+#include <dpp/dpp.h>
 #include <mysql.h>
 #include "config.hpp"
 #include <thread>
@@ -7,10 +8,13 @@
 
 using namespace std;
 	
+using cGuild = utl::cGuild;
+using fracNum = utl::fracNum;
 
 namespace mData {
 
-dataHandle::dataHandle() {
+dataHandle::dataHandle(cluster * botPar) {
+	this->bot = botPar;
 	this->dataCon = NULL;
 	try {
 		mysql_library_init(0,NULL,NULL);
@@ -30,197 +34,113 @@ dataHandle::dataHandle() {
  
 }
 
-/*
-reSet dataHandle::getUser(uint64_t userId, uint64_t guildId) {
+int dataHandle::getCount(fracNum rCount, fracNum rStart, int rLives) {
 	std::string curQ = "";
-	reSet retAc;
-	if (guildId > 0) {
-		try {
-			curQ = ("SELECT duelId FROM userGuildIds WHERE guildId = "  + std::to_string(guildId) + " AND userId = " + std::to_string(userId) + ";");
-			mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-			MYSQL_RES * result = mysql_store_result(this->dataCon);
-			
-			if (mysql_num_rows(result) > 0) {
-				
-				MYSQL_ROW resRow = mysql_fetch_row(result);
-				std::cout << mysql_num_rows(result) << std::endl;
-				std::cout << mysql_num_fields(result) << std::endl;
-				//idk why the -48 is needed 
-				retAc.push_back(std::stoull(resRow[0]));
-				mysql_free_result(result);
-				return retAc;
-			} else {
-				curQ = ("INSERT INTO userGuildIds (userId,guildId) VALUES (" + std::to_string(userId) + "," + std::to_string(guildId) + ");");
-				mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-				
-				retAc.push_back(mysql_insert_id(this->dataCon));
-				mysql_free_result(result);
-				return retAc;
-			}
-				
+	try {
+		curQ = ("SELECT id FROM countIds WHERE currentJump = \"" + rCount.toStr() + "\" AND currentStart = \"" + rStart.toStr() + "\" AND numLives = " + to_string(rLives) + ";"); 		
+		std::cout << curQ << " at: " << __LINE__ << "\n";
+		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
+
+		MYSQL_RES * result = mysql_store_result(this->dataCon);
 		
-		} catch (...) {
-			std::cout << "An error has occured \n";
-		}
-
-
-
-	} else {
-		try {
-			curQ = ("SELECT duelId FROM userGuildIds WHERE guildId IS NULL AND userId = " + std::to_string(userId) + ";");
+		if (mysql_num_rows(result) > 0) {	
+			MYSQL_ROW resRow = mysql_fetch_row(result);
+			int tInt = stoi(resRow[0]);
+			mysql_free_result(result);
+			return tInt;
+		} else {		
+			curQ = ("INSERT INTO countIds(currentJump,currentStart,numLives) VALUES (\"" +  rCount.toStr() + "\",\"" + rStart.toStr() + "\"," + to_string(rLives) + ");");
 			mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-			MYSQL_RES * result = mysql_store_result(this->dataCon);
-			
-			if (mysql_num_rows(result) > 0) {
-				
-				MYSQL_ROW resRow = mysql_fetch_row(result);
-				std::cout << mysql_num_rows(result) << std::endl;
-				std::cout << mysql_num_fields(result) << std::endl;
-				retAc.push_back(std::stoull(resRow[0]));
-				mysql_free_result(result);
-				return retAc;
-
-			} else {
-				curQ = ("INSERT INTO userGuildIds (userId) VALUES (" + std::to_string(userId) + ");");
-				mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-				retAc.push_back(mysql_insert_id(this->dataCon));
-				mysql_free_result(result);
-				return retAc;
-			
-			}
-				
-		
-		} catch (...) {
-			std::cout << "An error has occured \n";
-		}
-
-
-
+			return (mysql_insert_id(this->dataCon));	
+		}	
+	} catch (...) {
+		std::cout << "An error has occured \n";
 	}
+	return 0;
 
-	return {0};
+
+
 }
 
-//if negative, should be hidden
-
-reSet dataHandle::getRate(int gameId,uint64_t userId,uint64_t guildId) {
-	reSet retAc;
-	uint64_t totalId = get<uint64_t>(this->getUser(userId,guildId)[0]);
+utl::cGuild * dataHandle::getGuild(snowflake guildId) {
 	std::string curQ = "";
-	MYSQL_RES * result;
+	cGuild * curG = new cGuild(guildId,this->bot);
+	curG->onUpdate = [this,curG] { this->updateGuild(*curG); }; 
 	try {
-		if (gameId < 0) {
-			curQ = ("SELECT gameRate, showRate FROM userGameInfo WHERE gameId IS NULL AND userId = " + std::to_string(totalId) + ";");
-		} else {
-			curQ = ("SELECT gameRate, showRate FROM userGameInfo WHERE gameId = " + std::to_string(gameId) + " AND userId = " + std::to_string(totalId) + ";");
-		}
+		curQ = ("SELECT * FROM guildIds WHERE guildId = "  + std::to_string(guildId) + " LEFT JOIN countIds ON guildIds.curCount = countIds.id;"); 		
+		std::cout << curQ << " at: " << __LINE__ << "\n";
 		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-		result = mysql_store_result(this->dataCon);
-		
-		if (mysql_num_rows(result) <= 0) {
-			string tempCurQ = ("INSERT INTO userGameInfo (userId, gameId) VALUES (" + to_string(totalId) + ", " + to_string(gameId) + ");");
-			mysql_real_query(this->dataCon,tempCurQ.c_str(),tempCurQ.length());
+
+		MYSQL_RES * result = mysql_store_result(this->dataCon);
+		if (result == 0) { return curG; }
+		if (mysql_num_rows(result) > 0) {
+			
+			MYSQL_ROW resRow = mysql_fetch_row(result);
+			std::cout << mysql_num_rows(result) << std::endl;
+			std::cout << mysql_num_fields(result) << std::endl;
+			curG->setCount(fracNum(resRow[2]));
+			curG->setStart(fracNum(resRow[9]));
+			curG->setLives(stoi(resRow[3]));
+			curG->setPrefChan(stoull(resRow[6]));
+			curG->startLives = stoi(resRow[1]);
+			curG->curUser = (stoull(resRow[6]));
+			mysql_free_result(result);
+		} else {
+			curQ = ("INSERT INTO guildIds (guildId,curVal,curLives,curCount,curUser,defChan) VALUES (" + to_string(guildId) + "\"1\",1,1,NULL,NULL);");
 			mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-			//could props optimize with last insert but too lazy rn
-			result = mysql_store_result(this->dataCon);
-			std::cout << "res is: " << result << std::endl;
 			
 		}
-		MYSQL_ROW curRow = mysql_fetch_row(result);
-		if (curRow == NULL) {
-			std::cout << "Retrived last\n";
-		}
-		retAc.push_back(atoi(curRow[0]));
-		bool isAllow = false;
-		std::function<bool(uint64_t,int)> canSee; 
+			
+	
+	} catch (...) {
+		std::cout << "An error has occured \n";
+	}
+	return curG;
+
+}
+
+void dataHandle::deleteGuild(snowflake guildId) {
+	std::string curQ = "";
+	
+	try {
+		curQ = ("SELECT id FROM guildIds WHERE guildId = "  + std::to_string(guildId) + ";");
+		std::cout << curQ << " at: " << __LINE__ << "\n"; 		
+		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
+
+		MYSQL_RES * result = mysql_store_result(this->dataCon);
 		
-		canSee = ([&] (uint64_t guildIdPar,int gameIdPar) {
-			std::cout << "\n val is null \n\n";
-			bool isGuildDef = (guildIdPar != 0);
-			bool isGameDef = (gameIdPar < 0);
-			if (not (isGameDef or isGuildDef)) {
-					return true;
-				
-			} else if (((not isGameDef) and isGuildDef) or  (isGameDef and (not isGuildDef))) {
+		if (mysql_num_rows(result) > 0) {
+			curQ = ("DELETE FROM guildIds WHERE guildId = "  + std::to_string(guildId) + ";");
+			mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
 
-				uint64_t tempTotalId = get<uint64_t>(this->getUser(userId)[0]);
-				string tempCurQT = ("SELECT showRate FROM userGameInfo WHERE gameId IS NULL AND userId = " + std::to_string(tempTotalId) + ";");
-				mysql_real_query(this->dataCon,tempCurQT.c_str(),tempCurQT.length());
-				result = mysql_store_result(this->dataCon);
-				curRow = mysql_fetch_row(result);
-				if (curRow[0] == NULL) {
-					return true;
-				} else {
-					return (*curRow[0] != '0');
+			mysql_free_result(result);
+		} 
 
-					//if (
-				}
-					
-			} else {
-				return canSee(guildIdPar,-1);
-			}
-
-		});
-
-		if (curRow[1] == NULL) {
-			isAllow = canSee(guildId,gameId);
-		} else {
-			isAllow = (*curRow[1] != '0');
-		}
-		
-		
+			
+	
+	} catch (...) {
+		std::cout << "An error has occured \n";
+	}
 
 
-		
-		retAc.push_back(isAllow);
-		mysql_free_result(result);
-		return (retAc);
-		
+}
+
+void dataHandle::updateGuild(cGuild gState) {
+	std::string curQ = "";
+
+	try {
+		curQ = ("UPDATE guildIds SET curVal = \"" + gState.currentValue.toStr() + "\", curLives = " + to_string(gState.curLives) + ", curCount = " + to_string(this->getCount(gState.curStep,gState.curStart,gState.startLives)) + ", curUser = " + to_string(gState.curUser) + ", defChan = " + to_string(gState.prefChan) + " WHERE guildId = " + to_string(gState.curGuild) + ";");
+
+		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
+
 
 	} catch (...) {
-		return {0};
-
+		cout << "A error has occured\n";
 	}
-	
-
-	
 }
-
-//this
-//global
-//both
-//all
-//allbut
-bool dataHandle::editSetting (string setName, string val, int gameId, uint64_t userId, uint64_t guildId, int scopeSet) {
-
-	try {
-		string curQ = "SELECT duelId FROM userGuildIds WHERE ";
-
-		if (scopeSet == 0) { curQ.append(("userId = " + to_string(userId) + " AND guildId = " + to_string(guildId) + ";")); } 
-		else if (scopeSet == 1) { curQ.append(("userId = " + to_string(userId) + " AND guildId IS NULL;")); } 
-		else if (scopeSet == 2) { curQ.append(("userId = " + to_string(userId) + " AND (guildId = " + to_string(guildId) + " OR guildId IS NULL);")); } 
-		else if (scopeSet == 3) { curQ.append(("userId = " + to_string(userId) + ";")); } 
-		else if (scopeSet == 4) { curQ.append(("userId = " + to_string(userId) + " AND guildId IS NOT NULL;")); } 
-		else { return false; }
-
-		std::cout << "\n curQ cur Is: " << curQ << std::endl;
-		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-		MYSQL_RES * result = mysql_store_result(this->dataCon);
-		MYSQL_ROW curRow;
-		while ((curRow = mysql_fetch_row(result)) != NULL) {
-			std::cout << string(curRow[0]) << std::endl;
-			curQ = ("UPDATE userGameInfo SET " + setName + " = " + val + " WHERE userId = " + string(curRow[0]) + " AND gameId = " + to_string(gameId) + ";"); 
-			std::cout << curQ << std::endl;
-			mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
-		}
-		return true;
-	
-	} catch (...) { return false; }
-
-
 
 
 }
-*/
-}
+
+
 

@@ -35,6 +35,7 @@ cGuild::cGuild(snowflake gId,cluster * botPar,snowflake goodChan) {
 	this->curLives = this->startLives;
 	this->curUser = 0;
 	this->highValue = this->curStart;
+    this->curGuild = gId;
 }
 
 
@@ -69,6 +70,7 @@ void cGuild::onMsg(message inMsg) {
 
 		}
         this->curUser = inMsg.author.id;
+        this->onUpdate();
 	} else {
 		this->bot->message_add_reaction(inMsg,"⚠️");
 	}
@@ -87,6 +89,7 @@ void cGuild::forceReset() {
 	this->curUser = 0;
 	this->highValue = this->curStart;
 	this->bot->message_create(message(this->prefChan,("Current count has been reset to " + this->curStart.toStr() + " incrementing by " + this->curStep.toStr() + " you have " + std::to_string(this->curLives) + " lives, good luck!")));
+    this->onUpdate();
 }
 
 

@@ -18,9 +18,11 @@ class fracNum {
 		fracNum(long double inD);
 		fracNum operator + (const fracNum& obj);
 		fracNum operator - (const fracNum& obj);
+		fracNum operator * (const fracNum& obj);
 		bool operator == (const fracNum& obj);
 		std::string toStr();
 		long double toDouble();
+		void simplify();
 	private:
 		bigInt baseVal;
 		int64_t power;
@@ -37,6 +39,7 @@ class cGuild {
 		utl::fracNum curStart = 1;
 		int curLives = 1;
 		int startLives = 1;
+		snowflake prefChan = 0;
 		snowflake curUser;
 		void onMsg(message inMsg);
 		void setStart(utl::fracNum inD);
@@ -44,12 +47,14 @@ class cGuild {
 		void setLives(int inInt);
 		void setPrefChan(snowflake inSnow);
 		void forceReset();
+		snowflake curGuild;
+		std::function<void()> onUpdate;
 
 	private:
 		cluster * bot;
 		bool isCorrect(std::string inStr);
 		
-		snowflake prefChan = 0;
+		
 		
 
 

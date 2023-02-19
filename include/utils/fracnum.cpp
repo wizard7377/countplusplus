@@ -80,24 +80,38 @@ std::string fracNum::toStr() {
 	return rStr;
 }
 
+void fracNum::simplify() {
+	while ((this->baseVal % 10) == 0) {
+		this->baseVal /= 10;
+		this->power -= 1;
+	}
+}
+
 
 fracNum fracNum::operator + (const fracNum& obj) {
 	
 	if (this->power > obj.power) {
 		fracNum tempNum = *this;
 		tempNum.baseVal = this->baseVal+(obj.baseVal*(std::pow(10,(this->power-obj.power))));
-        return tempNum;
+		return tempNum;
 	} else if (this->power == obj.power) {
 		fracNum tempNum = *this;
 		tempNum.baseVal = this->baseVal+obj.baseVal;
-        return tempNum;
+		return tempNum;
 	} else {
 		fracNum tempNum = obj;
 		tempNum.baseVal = obj.baseVal+(this->baseVal*(std::pow(10,(obj.power-this->power))));
-        return tempNum;
-	}
-	
+		return tempNum;
+	}	
 }
+
+fracNum fracNum::operator * (const fracNum& obj) {
+	fracNum tempNum = *this;
+	tempNum.baseVal *= obj.baseVal;
+	tempNum.power += obj.power;
+	return tempNum;
+}
+
 fracNum fracNum::operator - (const fracNum& obj) {
 	
 	if (this->power > obj.power) {

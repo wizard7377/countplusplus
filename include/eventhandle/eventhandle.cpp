@@ -20,13 +20,20 @@ using namespace dpp;
 namespace evt {
 	
 eventhandle::eventhandle(cluster * bot) {
-	this->testCon = new mData::dataHandle();
+	this->testCon = new mData::dataHandle(bot);
 	std::unordered_map<snowflake,utl::cGuild*> * gMap = new std::unordered_map<snowflake,utl::cGuild*>; 
 	for (auto a: bot->current_user_get_guilds_sync()) {
-		utl::cGuild * nGuild = new utl::cGuild(a.first,bot);
+		utl::cGuild * nGuild = this->testCon->getGuild(a.first);
 		gMap->emplace(a.first,nGuild);
 		this->addMessageCmd(std::to_string(a.first),([this,nGuild](const message_create_t& event) { nGuild->onMsg(event.msg); } ));
 	}
+	bot->on_guild_create([this,gMap](const auto& event) {
+		try {
+			std::thread([this,event,gMap] { try { gMap->emplace(event.created->id,this->testCon->getGuild(event.created->id)); } catch (...) {} } ).detach();
+		} catch (...) {
+			std::cout << "An error has occured" << std::endl;
+		}
+	});
 	bot->on_select_click([this](const auto& event) {
 		try {
 			std::thread([this,event] { try { this->selectCmds.at(event.custom_id)(event); } catch (...) {} } ).detach();
@@ -36,7 +43,7 @@ eventhandle::eventhandle(cluster * bot) {
 	});
 	bot->on_button_click([this](const auto& event) {
 		try {
-			std::thread([this,event] { (this->buttonCmds.at(event.custom_id))(event); }).detach();
+			std::thread([this,event] { try { (this->buttonCmds.at(event.custom_id))(event); } catch(...) {} }).detach();
 		} catch (...) {
 			std::cout << "An error has occured" << std::endl;
 		}
