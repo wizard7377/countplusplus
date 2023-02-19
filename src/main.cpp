@@ -81,6 +81,9 @@ int main(int argc, char *argv[]) {
         if (run_once<struct register_bot_commands>()) {
 			
 			bot.global_command_create(botCmds::infoDef());
+			bot.global_command_create(botCmds::setDef());
+			bot.global_command_create(botCmds::resetDef());
+			bot.global_command_create(botCmds::chanDef());
 			
 	}
     });

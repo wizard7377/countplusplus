@@ -2,6 +2,7 @@
 #include <string>
 #include <dpp/dpp.h>
 #include <functional>
+#include <algorithm>
 #include <unordered_map>
 #include <iostream>
 #include "gamenums.hpp"
@@ -18,9 +19,10 @@ namespace evt {
 	
 eventhandle::eventhandle(cluster * bot) {
 	this->testCon = new mData::dataHandle();
-	
+	std::unordered_map<snowflake,utl::cGuild*> * gMap = new std::unordered_map<snowflake,utl::cGuild*>; 
 	for (auto a: bot->current_user_get_guilds_sync()) {
 		utl::cGuild * nGuild = new utl::cGuild(a.first,bot);
+		gMap->emplace(a.first,nGuild);
 		this->addMessageCmd(std::to_string(a.first),([this,nGuild](const message_create_t& event) { nGuild->onMsg(event.msg); } ));
 	}
 	bot->on_select_click([this](const auto& event) {
@@ -70,6 +72,31 @@ eventhandle::eventhandle(cluster * bot) {
 
 	this->addSlashCmd("info",[bot](const slashcommand_t &event) {
 		event.reply("This bot is for playing two player games, and it's source code may be found at https://github.com/wizard7377/countplusplus.git");
+	});
+	this->addSlashCmd("countrules",[bot,gMap](const slashcommand_t &event) {
+		event.reply("Done");
+		if (event.get_parameter("start").index() != 0) { (gMap->at(event.command.get_guild().id))->setStart(std::get<double>(event.get_parameter("start"))); }
+		if (event.get_parameter("step").index() != 0) { (gMap->at(event.command.get_guild().id))->setCount(std::get<double>(event.get_parameter("step"))); }
+		if (event.get_parameter("lives").index() != 0) { (gMap->at(event.command.get_guild().id))->setLives(std::get<int64_t>(event.get_parameter("lives"))); }
+		if ((event.get_parameter("start").index() != 0) or (event.get_parameter("step").index() != 0) or (event.get_parameter("lives").index() != 0)) { (gMap->at(event.command.get_guild().id))->forceReset(); }	
+	});
+	this->addSlashCmd("reset",[bot,gMap](const slashcommand_t &event) {
+		event.reply("Count has been reset");
+		(gMap->at(event.command.get_guild().id))->forceReset();	
+	});
+	this->addSlashCmd("channelset",[bot,gMap](const slashcommand_t &event) {
+		
+		if (event.get_parameter("channel").index() != 0) {
+			if (std::any_of(event.command.get_guild().channels.begin(),event.command.get_guild().channels.begin(),[event](snowflake inVal) { return (std::get<snowflake>(event.get_parameter("channel")) == inVal); })) {
+				(gMap->at(event.command.get_guild().id))->setPrefChan(std::get<snowflake>(event.get_parameter("channel")));
+				event.reply("Set channel");			
+			} else {
+				event.reply("Channel not in guild");
+			}
+		} else {
+			(gMap->at(event.command.get_guild().id))->setPrefChan(event.command.get_channel().id);
+			event.reply("Set channel");			
+		}
 	});
 	
 	
