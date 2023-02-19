@@ -13,6 +13,7 @@ file(GLOB_RECURSE SECRETS "secrets/*.hpp")
 file(GLOB_RECURSE INC_SOURCES "include/*.cpp") 
 # Add DPP as dependency
 add_subdirectory(libs/DPP)
+add_subdirectory(eval)
 # You can also add any other libs you want to use
 #set(CMAKE_CXX_FLAGS "-O0")
 
@@ -42,6 +43,7 @@ target_link_libraries(${PROJECT_NAME}
     /usr/lib/x86_64-linux-gnu/libmysqlclient.a
     gmp
     gmpxx
+    evalLib
 )
  
 # Specify includes

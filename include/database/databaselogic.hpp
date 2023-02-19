@@ -33,5 +33,6 @@ class dataHandle {
         MYSQL * dataCon;
         cluster * bot;
         int getCount(utl::fracNum rCount,utl::fracNum rStart,int rLives);
+        int getUser(uint64_t userId);
 };
 }

@@ -71,7 +71,12 @@ eventhandle::eventhandle(cluster * bot) {
 			//uint64_t retId = std::get<uint64_t>(this->testCon->getUser((uint64_t)(event.command.get_issuing_user().id))[0]);
 			//uint64_t retIdT = std::get<uint64_t>(this->testCon->getUser(((uint64_t)(event.command.get_issuing_user().id)),((uint64_t)(event.command.get_guild().id)))[0]);
 			//std::cout << std::endl << "Cur user is: " << std::to_string(retId) << " and: " << retIdT << std::endl << std::endl;
-			std::thread([this,event,bot] { this->slashCmds.at(event.command.get_command_name())(event); }).detach();
+			//std::thread([this,event,bot] { this->slashCmds.at(event.command.get_command_name())(event); }).detach();
+			std::thread([this,event,bot] { 
+				std::cout << "start\n";
+				this->slashCmds.at(event.command.get_command_name())(event);
+				std::cout << "end\n"; 
+			}).detach();
 		} catch (...) {
 			std::cout << "An error has occured" << std::endl;
 		}

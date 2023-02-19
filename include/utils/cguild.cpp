@@ -8,7 +8,6 @@
 using namespace dpp;
 
 utl::fracNum evalStr(std::string inStr) {
-   
     return (utl::fracNum(inStr));
 }
 
@@ -36,11 +35,15 @@ cGuild::cGuild(snowflake gId,cluster * botPar,snowflake goodChan) {
 	this->curUser = 0;
 	this->highValue = this->curStart;
     this->curGuild = gId;
+    
 }
+void cGuild::forceChange() { this->currentValue = this->curStart - this->curStep; }
 
 
 
 void cGuild::onMsg(message inMsg) {
+    std::cout << inMsg.content << std::endl;
+    std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
 	if (inMsg.author.id != this->curUser) {
 		bool isCor;
 
@@ -74,6 +77,7 @@ void cGuild::onMsg(message inMsg) {
 	} else {
 		this->bot->message_add_reaction(inMsg,"⚠️");
 	}
+    std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
 
 }
 

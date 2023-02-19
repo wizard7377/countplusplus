@@ -27,6 +27,7 @@ class fracNum {
 		bigInt baseVal;
 		int64_t power;
 		void conStr(std::string conStr);
+		void getRep();
 };
 
 
@@ -47,12 +48,14 @@ class cGuild {
 		void setLives(int inInt);
 		void setPrefChan(snowflake inSnow);
 		void forceReset();
+		void forceChange();
 		snowflake curGuild;
 		std::function<void()> onUpdate;
 
 	private:
 		cluster * bot;
 		bool isCorrect(std::string inStr);
+		
 		
 		
 		

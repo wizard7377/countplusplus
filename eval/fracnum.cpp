@@ -2,9 +2,10 @@
 #include <string>
 #include <gmp.h>
 #include <gmpxx.h>
-#include "utl.hpp"
+#include "fracnum.hpp"
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 using bigInt = mpz_class;
 
@@ -31,7 +32,7 @@ std::string tNum(std::string inStr) {
 	return inStr;
 }
 
-namespace utl {
+namespace fNum {
 
 /*
 class fracNum {
