@@ -1,11 +1,15 @@
+
+
 #include "utl.hpp"
 #include <string>
+#include <type_traits>
 #include <vector>
 
 using namespace dpp;
 
-long double evalStr(std::string inStr) {
-    return (std::stold(inStr));
+utl::fracNum evalStr(std::string inStr) {
+   
+    return (utl::fracNum(inStr));
 }
 
 std::string dToStr(long double inDouble) {
@@ -46,7 +50,8 @@ void cGuild::onMsg(message inMsg) {
 
 		if (isCor) {
 			this->bot->message_add_reaction(inMsg,"✅");
-			this->currentValue += this->curStep;
+			//this->currentValue += this->curStep;
+            this->currentValue = this->currentValue + this->curStep;
 
 		} else {
 
@@ -56,9 +61,9 @@ void cGuild::onMsg(message inMsg) {
 			if (this->curLives <= 0) {
 				this->currentValue = this->curStart-this->curStep;
 				this->curLives = 1;
-				this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have no more lives left, starting count at " + dToStr(this->curStart))));
+				this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have no more lives left, starting count at " + (this->curStart).toStr())));
 			} else {
-				this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have " + std::to_string(this->curLives) + " left, last count was " + dToStr(this->currentValue))));
+				this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have " + std::to_string(this->curLives) + " left, last count was " + this->currentValue.toStr())));
 			}
 
 
@@ -71,7 +76,7 @@ void cGuild::onMsg(message inMsg) {
 }
 
 bool cGuild::isCorrect(std::string inStr) {
-    std::cout << inStr << " as opposed to " << (this->currentValue + this->curStep) << " is correct \n\n";
+
 	return (evalStr(inStr) == (this->currentValue + this->curStep));
 	
 }
@@ -81,17 +86,17 @@ void cGuild::forceReset() {
 	this->curLives = this->startLives;
 	this->curUser = 0;
 	this->highValue = this->curStart;
-	this->bot->message_create(message(this->prefChan,("Current count has been reset to " + dToStr(this->curStart) + " incrementing by " + dToStr(this->curStep) + " you have " + std::to_string(this->curLives) + " lives, good luck!")));
+	this->bot->message_create(message(this->prefChan,("Current count has been reset to " + this->curStart.toStr() + " incrementing by " + this->curStep.toStr() + " you have " + std::to_string(this->curLives) + " lives, good luck!")));
 }
 
 
-void cGuild::setStart(long double inD) {
+void cGuild::setStart(utl::fracNum inD) {
     this->curStart = inD;
-    std::cout << this->curStart << " is start \n";
+    //std::cout << this->curStart << " is start \n";
 }
-void cGuild::setCount(long double inD) {
+void cGuild::setCount(utl::fracNum inD) {
     this->curStep = inD;
-    std::cout << this->curStep << " is count \n";
+    //std::cout << this->curStep << " is count \n";
 }
 void cGuild::setLives(int inInt) {
     this->startLives = inInt;

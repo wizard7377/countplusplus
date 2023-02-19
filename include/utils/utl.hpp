@@ -3,26 +3,44 @@
 #include <dpp/dpp.h>
 #include <vector>
 #include <string>
+#include <gmpxx.h>
 
 using namespace dpp;
 
-
+using bigInt = mpz_class;
 
 namespace utl {
+
+//form is base * (10 ^ power)
+class fracNum {
+	public:
+		fracNum(std::string inStr);
+		fracNum(long double inD);
+		fracNum operator + (const fracNum& obj);
+		fracNum operator - (const fracNum& obj);
+		bool operator == (const fracNum& obj);
+		std::string toStr();
+		long double toDouble();
+	private:
+		bigInt baseVal;
+		int64_t power;
+		void conStr(std::string conStr);
+};
+
 
 class cGuild {
 	public:
 		cGuild(snowflake gId,cluster * botPar,snowflake goodChan = 0);
-		long double currentValue = 1;
-		long double highValue = 1;
-		long double curStep = 1;
-		long double curStart = 1;
+		utl::fracNum currentValue = 1;
+		utl::fracNum highValue = 1;
+		utl::fracNum curStep = 1;
+		utl::fracNum curStart = 1;
 		int curLives = 1;
 		int startLives = 1;
 		snowflake curUser;
 		void onMsg(message inMsg);
-		void setStart(long double inD);
-		void setCount(long double inD);
+		void setStart(utl::fracNum inD);
+		void setCount(utl::fracNum inD);
 		void setLives(int inInt);
 		void setPrefChan(snowflake inSnow);
 		void forceReset();

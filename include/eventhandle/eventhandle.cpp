@@ -7,8 +7,10 @@
 #include <iostream>
 #include "gamenums.hpp"
 #include "utl.hpp"
-#include "cguild.cpp"
+//#include "cguild.cpp"
+//#include "fracnum.cpp"
 #include "eventhandle.hpp"
+
 
 
 //extern void handleChallengeSubmit(user userId, snowflake challengeId, std::string gameName, std::string guildName, cluster& bot,const form_submit_t& event);

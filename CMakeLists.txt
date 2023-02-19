@@ -19,6 +19,7 @@ add_subdirectory(libs/DPP)
 
 add_link_options("-lmysqlclient")
 
+
 # Create an executable
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -39,6 +40,8 @@ target_link_libraries(${PROJECT_NAME}
     dpp
     nlohmann_json::nlohmann_json
     /usr/lib/x86_64-linux-gnu/libmysqlclient.a
+    gmp
+    gmpxx
 )
  
 # Specify includes
