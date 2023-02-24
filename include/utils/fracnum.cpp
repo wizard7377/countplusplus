@@ -1,3 +1,5 @@
+/*
+
 #include <vector>
 #include <string>
 #include <gmp.h>
@@ -5,6 +7,7 @@
 #include "utl.hpp"
 #include <algorithm>
 #include <cmath>
+
 
 using bigInt = mpz_class;
 
@@ -48,21 +51,21 @@ class fracNum {
 		int64_t power;
 
 };
-*/
+
 
 void fracNum::conStr(std::string conStr) {
     this->getRep();
-    std::cout << conStr << std::endl;
+    //std::cout << conStr << std::endl;
     std::string curStr = tNum(conStr);
-    std::cout << curStr << std::endl;
+    //std::cout << curStr << std::endl;
 	int64_t dPos = curStr.find(".");
     
 	std::string rStr = "";
 	std::erase(curStr,'.');
     rStr = curStr;
-	std::cout << "rStr is: " << rStr << std::endl;
+	//std::cout << "rStr is: " << rStr << std::endl;
     this->baseVal = bigInt(rStr);
-    std::cout << "dpos is: " << dPos << std::endl;
+    //std::cout << "dpos is: " << dPos << std::endl;
 	if (dPos == std::string::npos) { this->power = 0; }
     else if (dPos == 0) { this->power = (-1) * curStr.length(); }
 	else if (dPos > 0) { this->power = dPos-curStr.length(); }
@@ -77,7 +80,7 @@ void fracNum::conStr(std::string conStr) {
 }
 
 fracNum::fracNum(std::string inStr) {
-    std::cout << "npos is: " << std::string::npos << std::endl;
+    //std::cout << "npos is: " << std::string::npos << std::endl;
 	this->conStr(inStr);
 }
 
@@ -150,6 +153,7 @@ fracNum fracNum::operator - (const fracNum& obj) {
 	}
 	
 }
+/*
 bool fracNum::operator == (const fracNum& obj) {
     this->getRep();
 	bool tempB;
@@ -164,6 +168,21 @@ bool fracNum::operator == (const fracNum& obj) {
 
 }
 
+
+bool fracNum::operator == (const fracNum& obj) {
+    this->getRep();
+	bigInt tempB;
+	if (this->power > obj.power) {
+		tempB = abs((this->baseVal*(tPower(this->power-obj.power)))-obj.baseVal);
+	} else if (this->power == obj.power) {
+		tempB = abs(this->baseVal-obj.baseVal);
+	} else {
+		tempB = abs(this->baseVal-(obj.baseVal*(tPower((obj.power-this->power)))));
+	}
+	return (tempB*TVAL<abs(this->baseVal));
+
+}
+
 void fracNum::getRep() {
     std::cout << this->baseVal.get_str() << "*(10^" << std::to_string(this->power) << ")\n";
 }
@@ -172,5 +191,5 @@ void fracNum::getRep() {
 
 }
 
-
+*/
 

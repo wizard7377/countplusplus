@@ -4,11 +4,12 @@
 #include <string>
 #include <type_traits>
 #include <vector>
+#include "fracnum.hpp"
 
 using namespace dpp;
 
-utl::fracNum evalStr(std::string inStr) {
-    return (utl::fracNum(inStr));
+fNum::fracNum evalStr(std::string inStr) {
+    return (fNum::fracNum(inStr));
 }
 
 std::string dToStr(long double inDouble) {
@@ -42,13 +43,14 @@ void cGuild::forceChange() { this->currentValue = this->curStart - this->curStep
 
 
 void cGuild::onMsg(message inMsg) {
-    std::cout << inMsg.content << std::endl;
-    std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
+    //std::cout << inMsg.content << std::endl;
+    //std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
 	if (inMsg.author.id != this->curUser) {
 		bool isCor;
 
 		try {
 			isCor = this->isCorrect(inMsg.content);
+			
 			if (this->prefChan == uint64_t(0)) { this->prefChan = inMsg.channel_id; }
 		} catch (...) { return; }
 
@@ -77,7 +79,7 @@ void cGuild::onMsg(message inMsg) {
 	} else {
 		this->bot->message_add_reaction(inMsg,"⚠️");
 	}
-    std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
+    //std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
 
 }
 
@@ -97,11 +99,11 @@ void cGuild::forceReset() {
 }
 
 
-void cGuild::setStart(utl::fracNum inD) {
+void cGuild::setStart(fNum::fracNum inD) {
     this->curStart = inD;
     //std::cout << this->curStart << " is start \n";
 }
-void cGuild::setCount(utl::fracNum inD) {
+void cGuild::setCount(fNum::fracNum inD) {
     this->curStep = inD;
     //std::cout << this->curStep << " is count \n";
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <gmpxx.h>
+#include "fracnum.hpp"
 
 using namespace dpp;
 
@@ -12,6 +13,7 @@ using bigInt = mpz_class;
 namespace utl {
 
 //form is base * (10 ^ power)
+/*
 class fracNum {
 	public:
 		fracNum(std::string inStr);
@@ -20,6 +22,7 @@ class fracNum {
 		fracNum operator - (const fracNum& obj);
 		fracNum operator * (const fracNum& obj);
 		bool operator == (const fracNum& obj);
+		
 		std::string toStr();
 		long double toDouble();
 		void simplify();
@@ -29,22 +32,23 @@ class fracNum {
 		void conStr(std::string conStr);
 		void getRep();
 };
+*/
 
 
 class cGuild {
 	public:
 		cGuild(snowflake gId,cluster * botPar,snowflake goodChan = 0);
-		utl::fracNum currentValue = 1;
-		utl::fracNum highValue = 1;
-		utl::fracNum curStep = 1;
-		utl::fracNum curStart = 1;
+		fNum::fracNum currentValue = 1;
+		fNum::fracNum highValue = 1;
+		fNum::fracNum curStep = 1;
+		fNum::fracNum curStart = 1;
 		int curLives = 1;
 		int startLives = 1;
 		snowflake prefChan = 0;
 		snowflake curUser;
 		void onMsg(message inMsg);
-		void setStart(utl::fracNum inD);
-		void setCount(utl::fracNum inD);
+		void setStart(fNum::fracNum inD);
+		void setCount(fNum::fracNum inD);
 		void setLives(int inInt);
 		void setPrefChan(snowflake inSnow);
 		void forceReset();

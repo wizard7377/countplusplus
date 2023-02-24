@@ -9,7 +9,7 @@
 using namespace std;
 	
 using cGuild = utl::cGuild;
-using fracNum = utl::fracNum;
+using fracNum = fNum::fracNum;
 
 int strToInt (char * inStr) {
 	if (inStr != 0) {
@@ -91,7 +91,7 @@ int dataHandle::getCount(fracNum rCount, fracNum rStart, int rLives) {
 	std::string curQ = "";
 	try {
 		curQ = ("SELECT id FROM countIds WHERE currentJump = \"" + rCount.toStr() + "\" AND currentStart = \"" + rStart.toStr() + "\" AND numLives = " + to_string(rLives) + ";"); 		
-		std::cout << curQ << " at: " << __LINE__ << "\n";
+		//std::cout << curQ << " at: " << __LINE__ << "\n";
 		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
 
 		MYSQL_RES * result = mysql_store_result(this->dataCon);
@@ -121,17 +121,17 @@ utl::cGuild * dataHandle::getGuild(snowflake guildId) {
 	curG->onUpdate = [this,curG] { this->updateGuild(*curG); }; 
 	try {
 		curQ = ("SELECT * FROM guildIds LEFT JOIN countIds ON guildIds.curCount = countIds.id LEFT JOIN userIds ON guildIds.curUser = userIds.id WHERE guildId = "  + std::to_string(guildId) + ";"); 		
-		std::cout << curQ << " at: " << __LINE__ << "\n";
+		//std::cout << curQ << " at: " << __LINE__ << "\n";
 		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
 
 		MYSQL_RES * result = mysql_store_result(this->dataCon);
-		std::cout << mysql_num_rows(result) << std::endl;
+		//std::cout << mysql_num_rows(result) << std::endl;
 		if (result == 0) { return curG; }
 		if (mysql_num_rows(result) > 0) {
 			
 			MYSQL_ROW resRow = mysql_fetch_row(result);		
-			std::cout << "num rows: " << mysql_num_rows(result) << std::endl;		
-			std::cout << "num fields: " << mysql_num_fields(result) << std::endl;			
+			//std::cout << "num rows: " << mysql_num_rows(result) << std::endl;		
+			//std::cout << "num fields: " << mysql_num_fields(result) << std::endl;			
 			curG->setCount(fracNum(resRow[8]));			
 			curG->setStart(fracNum(resRow[9]));			
 			curG->setLives(stoi(resRow[3]));			
@@ -143,7 +143,7 @@ utl::cGuild * dataHandle::getGuild(snowflake guildId) {
 		} else {
 			
 			curQ = ("INSERT INTO guildIds (guildId,curVal,curLives,curCount,curUser,defChan) VALUES (" + to_string(guildId) + ",\"1\",1,1,NULL,NULL);");
-			std::cout << curQ << " at: " << __LINE__ << "\n";
+			//std::cout << curQ << " at: " << __LINE__ << "\n";
 			mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
 			
 		}
@@ -163,7 +163,7 @@ void dataHandle::deleteGuild(snowflake guildId) {
 	
 	try {
 		curQ = ("SELECT id FROM guildIds WHERE guildId = "  + std::to_string(guildId) + ";");
-		std::cout << curQ << " at: " << __LINE__ << "\n"; 		
+		//std::cout << curQ << " at: " << __LINE__ << "\n"; 		
 		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
 
 		MYSQL_RES * result = mysql_store_result(this->dataCon);
@@ -190,7 +190,7 @@ void dataHandle::updateGuild(cGuild gState) {
 	try {
 		 		
 		curQ = ("UPDATE guildIds SET curVal = \"" + gState.currentValue.toStr() + "\", curLives = " + to_string(gState.curLives) + ", curCount = " + to_string(this->getCount(gState.curStep,gState.curStart,gState.startLives)) + ", curUser = " + to_string(this->getUser(gState.curUser)) + ", defChan = " + to_string(gState.prefChan) + " WHERE guildId = " + to_string(gState.curGuild) + ";");
-		std::cout << curQ << " at: " << __LINE__ << "\n";
+		//std::cout << curQ << " at: " << __LINE__ << "\n";
 		mysql_real_query(this->dataCon,curQ.c_str(),curQ.length());
 
 

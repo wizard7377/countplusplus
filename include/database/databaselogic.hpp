@@ -10,6 +10,7 @@
 /* uncomment for applications that use vectors */
 #include <vector>
 #include "utl.hpp"
+#include "fracnum.hpp"
 
 #include "dbtypes.hpp"
 
@@ -32,7 +33,7 @@ class dataHandle {
     private: 
         MYSQL * dataCon;
         cluster * bot;
-        int getCount(utl::fracNum rCount,utl::fracNum rStart,int rLives);
+        int getCount(fNum::fracNum rCount,fNum::fracNum rStart,int rLives);
         int getUser(uint64_t userId);
 };
 }
