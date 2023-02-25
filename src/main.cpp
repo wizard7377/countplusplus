@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <nlohmann/json.hpp>
 #include "commandHandle.hpp"
+#include "eval.hpp"
 
 
 using namespace dpp;
@@ -49,6 +50,7 @@ int main(int argc, char *argv[]) {
 	std::ifstream jFile(getFullPath("secrets/config.json"));
 	json gameconfig = json::parse(jFile)["DISCORD"];
 
+	//std::cout << evalString("3-5+(-4+3)").toStr() << std::endl;
 	cluster bot((gameconfig["BOT_TOKEN"]),dpp::i_default_intents | dpp::i_message_content);
 	
 

@@ -88,6 +88,7 @@ fracNum::fracNum(long double inD) {
 	this->conStr(std::to_string(inD));
 }
 
+
 std::string fracNum::toStr() {
     //this->getRep();
 	std::string rStr = this->baseVal.get_str();

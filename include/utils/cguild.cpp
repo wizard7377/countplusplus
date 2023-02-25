@@ -5,7 +5,7 @@
 #include <type_traits>
 #include <vector>
 #include "fracnum.hpp"
-
+#include "eval.hpp"
 using namespace dpp;
 
 fNum::fracNum evalStr(std::string inStr) {
@@ -85,8 +85,9 @@ void cGuild::onMsg(message inMsg) {
 
 bool cGuild::isCorrect(std::string inStr) {
 
-	return (evalStr(inStr) == (this->currentValue + this->curStep));
-	
+	//return (evalStr(inStr) == (this->currentValue + this->curStep));
+	return (evalString(inStr,(this->currentValue + this->curStep)));	
+
 }
 
 void cGuild::forceReset() {
