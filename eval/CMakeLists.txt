@@ -5,7 +5,7 @@ project(evalLib VERSION 0.1 DESCRIPTION "Eval lib")
 find_package(BISON)
 find_package(FLEX)
 
-BISON_TARGET(MyParser parser.y ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
+BISON_TARGET(MyParser parser.yy ${CMAKE_CURRENT_BINARY_DIR}/parser.cpp)
 FLEX_TARGET(MyScanner lexer.lex  ${CMAKE_CURRENT_BINARY_DIR}/lexer.cpp)
 ADD_FLEX_BISON_DEPENDENCY(MyScanner MyParser)
 
@@ -15,6 +15,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # Create an executable
 add_library(${PROJECT_NAME}
     SHARED
+    driver.cc
     fracnum.cpp
     eval.cpp
     ${BISON_MyParser_OUTPUTS}

@@ -6,6 +6,7 @@
 #include <vector>
 #include "fracnum.hpp"
 #include "eval.hpp"
+#include <cctype>
 using namespace dpp;
 
 fNum::fracNum evalStr(std::string inStr) {
@@ -45,42 +46,43 @@ void cGuild::forceChange() { this->currentValue = this->curStart - this->curStep
 void cGuild::onMsg(message inMsg) {
     //std::cout << inMsg.content << std::endl;
     //std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
-	if (inMsg.author.id != this->curUser) {
-		bool isCor;
+	if (std::none_of(inMsg.content.begin(),inMsg.content.end(),[](char inChar) { return std::isalpha(inChar); })) {
+		if (inMsg.author.id != this->curUser) {
+			bool isCor;
 
-		try {
-			isCor = this->isCorrect(inMsg.content);
-			
-			if (this->prefChan == uint64_t(0)) { this->prefChan = inMsg.channel_id; }
-		} catch (...) { return; }
+			try {
+				isCor = this->isCorrect(inMsg.content);
+				
+				if (this->prefChan == uint64_t(0)) { this->prefChan = inMsg.channel_id; }
+			} catch (...) { return; }
 
-		if (isCor) {
-			this->bot->message_add_reaction(inMsg,"✅");
-			//this->currentValue += this->curStep;
-            this->currentValue = this->currentValue + this->curStep;
+				if (isCor) {
+					this->bot->message_add_reaction(inMsg,"✅");
+					//this->currentValue += this->curStep;
+			this->currentValue = this->currentValue + this->curStep;
 
-		} else {
+				} else {
 
-			this->bot->message_add_reaction(inMsg,"❌");
-			this->curLives -= 1;
+					this->bot->message_add_reaction(inMsg,"❌");
+					this->curLives -= 1;
 
-			if (this->curLives <= 0) {
-				this->currentValue = this->curStart-this->curStep;
-				this->curLives = 1;
-				this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have no more lives left, starting count at " + (this->curStart).toStr())));
-			} else {
-				this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have " + std::to_string(this->curLives) + " left, last count was " + this->currentValue.toStr())));
+					if (this->curLives <= 0) {
+						this->currentValue = this->curStart-this->curStep;
+						this->curLives = 1;
+						this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have no more lives left, starting count at " + (this->curStart).toStr())));
+					} else {
+						this->bot->message_create(message(inMsg.channel_id,(inMsg.author.get_mention() + " got the count wrong, you have " + std::to_string(this->curLives) + " left, last count was " + this->currentValue.toStr())));
+				}
+
+
 			}
-
-
+		this->curUser = inMsg.author.id;
+		this->onUpdate();
+		} else {
+			this->bot->message_add_reaction(inMsg,"⚠️");
 		}
-        this->curUser = inMsg.author.id;
-        this->onUpdate();
-	} else {
-		this->bot->message_add_reaction(inMsg,"⚠️");
-	}
     //std::cout << "Looking for: " << (this->currentValue + this->curStep).toStr() << std::endl;
-
+	}
 }
 
 bool cGuild::isCorrect(std::string inStr) {
